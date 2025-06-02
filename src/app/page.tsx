@@ -4,7 +4,8 @@ import type React from "react";
 
 import { useEffect, useState } from "react";
 import dados, { TarefaInterface } from "@/data";
-import Cabecalho from "@/componentes/Cabecalhot";
+import Cabecalho from "@/componentes/Cabecalho";
+import ModalTarefa from "@/componentes/ModalTarefa";
 
 interface TarefaProps {
 	titulo: string;
@@ -37,31 +38,51 @@ const Tarefa: React.FC<TarefaProps> = ({ titulo, concluido }) => {
 	);
 };
 
-interface TareafasProps {
-	dados: TarefaInterface[];
-}
-
-const Tarefas: React.FC<TareafasProps> = ({ dados }) => {
-	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-			{dados.map((tarefa) => (
-				<Tarefa
-					key={tarefa.id}
-					titulo={tarefa.title}
-					concluido={tarefa.completed}
-				/>
-			))}
-		</div>
-	);
+const Tarefas: React.FC<{ dados: TarefaInterface[] }> = ({ dados }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {dados.map((tarefa) => (
+        <Tarefa
+          key={tarefa.id}
+          titulo={tarefa.title}
+          concluido={tarefa.completed}
+        />
+      ))}
+    </div>
+  );
 };
 
 const Home = () => {
-	const tarefas: TarefaInterface[] = dados;
+	const [tarefas, setTarefas] = useState<TarefaInterface[]>(dados);
+	const [modalAberto, setModalAberto] = useState(false);
+
+	const adicionarTarefa = (titulo: string) => {
+		const novaTarefa: TarefaInterface = {
+			id: tarefas.length + 1,
+			title: titulo,
+			completed: false,
+		};
+		setTarefas([...tarefas, novaTarefa]);
+	};
 
 	return (
 		<div className="container mx-auto p-4">
 			<Cabecalho />
+			<button
+  				className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+  				onClick={() => setModalAberto(true)}
+			>
+  				Nova Tarefa
+			</button>
+
 			<Tarefas dados={tarefas} />
+
+			{modalAberto && (
+        		<ModalTarefa
+          			aoAdicionar={adicionarTarefa}
+          			aoFechar={() => setModalAberto(false)}
+        		/>
+      )}
 		</div>
 	);
 };
